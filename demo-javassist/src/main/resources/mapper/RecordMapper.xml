@@ -7,7 +7,7 @@
     <resultMap id="BaseResultMap" type="com.porco.javassist.domain.Record">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="templateId" column="template_id" jdbcType="INTEGER"/>
-            <result property="content" column="content" jdbcType="OTHER"/>
+            <result property="content" column="content" jdbcType="OTHER" typeHandler="com.porco.javassist.config.MySqlJsonHandler"/>
             <result property="stationId" column="station_id" jdbcType="INTEGER"/>
             <result property="addTime" column="add_time" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -32,7 +32,7 @@
         insert into record
         ( id,template_id,content
         ,station_id,add_time)
-        values (#{id,jdbcType=BIGINT},#{templateId,jdbcType=INTEGER},#{content,jdbcType=OTHER}
+        values (#{id,jdbcType=BIGINT},#{templateId,jdbcType=INTEGER},#{content,jdbcType=OTHER,typeHandler=com.porco.javassist.config.MySqlJsonHandler}
         ,#{stationId,jdbcType=INTEGER},#{addTime,jdbcType=TIMESTAMP})
     </insert>
     <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.Record" useGeneratedKeys="true">
@@ -47,7 +47,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
                 <if test="id != null">#{id,jdbcType=BIGINT},</if>
                 <if test="templateId != null">#{templateId,jdbcType=INTEGER},</if>
-                <if test="content != null">#{content,jdbcType=OTHER},</if>
+                <if test="content != null">#{content,jdbcType=OTHER,typeHandler=com.porco.javassist.config.MySqlJsonHandler},</if>
                 <if test="stationId != null">#{stationId,jdbcType=INTEGER},</if>
                 <if test="addTime != null">#{addTime,jdbcType=TIMESTAMP},</if>
         </trim>

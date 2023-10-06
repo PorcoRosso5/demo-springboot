@@ -20,6 +20,7 @@ import java.util.List;
 @Service
 public class ExcelService {
     private final TemplateMapper templateMapper;
+    public static final ThreadLocal<Class<?>> CLASS_THREAD_LOCAL = new ThreadLocal<>();
 
     public ExcelService(TemplateMapper templateMapper) {
         this.templateMapper = templateMapper;
@@ -35,6 +36,7 @@ public class ExcelService {
      * 3. 直接读即可
      */
     public void read(Long templateId, Class clz) {
+        CLASS_THREAD_LOCAL.set(clz);
         Template template = templateMapper.selectByPrimaryKey(templateId);
 
         // 匿名内部类 不用额外写一个DemoDataListener
@@ -74,6 +76,7 @@ public class ExcelService {
                 log.info("存储数据库成功！");
             }
         }).sheet().doRead();
+        CLASS_THREAD_LOCAL.remove();
     }
 
     /**
@@ -84,6 +87,7 @@ public class ExcelService {
      * 2. 直接写即可
      */
     public void simpleWrite(Long templateId, Class clz) {
+        CLASS_THREAD_LOCAL.set(clz);
         // 注意 simpleWrite在数据量不大的情况下可以使用（5000以内，具体也要看实际情况），数据量大参照 重复多次写入
         // since: 3.0.0-beta1
         Template template = templateMapper.selectByPrimaryKey(templateId);
@@ -101,5 +105,6 @@ public class ExcelService {
         //     WriteSheet writeSheet = EasyExcel.writerSheet("模板").build();
         //     excelWriter.write(ArrayList::new, writeSheet);
         // }
+        CLASS_THREAD_LOCAL.remove();
     }
 }
