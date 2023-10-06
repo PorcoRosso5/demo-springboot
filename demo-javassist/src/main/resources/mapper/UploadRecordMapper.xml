@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.porco.javassist.mapper.UploadRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.porco.javassist.domain.UploadRecord">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="stationId" column="station_id" jdbcType="INTEGER"/>
+            <result property="operatorId" column="operator_id" jdbcType="VARCHAR"/>
+            <result property="operatorName" column="operator_name" jdbcType="VARCHAR"/>
+            <result property="templateId" column="template_id" jdbcType="INTEGER"/>
+            <result property="location" column="location" jdbcType="VARCHAR"/>
+            <result property="uploadTime" column="upload_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,station_id,operator_id,
+        operator_name,template_id,location,
+        upload_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from upload_record
+        where  id = #{id,jdbcType=BIGINT} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from upload_record
+        where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.UploadRecord" useGeneratedKeys="true">
+        insert into upload_record
+        ( id,station_id,operator_id
+        ,operator_name,template_id,location
+        ,upload_time)
+        values (#{id,jdbcType=BIGINT},#{stationId,jdbcType=INTEGER},#{operatorId,jdbcType=VARCHAR}
+        ,#{operatorName,jdbcType=VARCHAR},#{templateId,jdbcType=INTEGER},#{location,jdbcType=VARCHAR}
+        ,#{uploadTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.UploadRecord" useGeneratedKeys="true">
+        insert into upload_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="stationId != null">station_id,</if>
+                <if test="operatorId != null">operator_id,</if>
+                <if test="operatorName != null">operator_name,</if>
+                <if test="templateId != null">template_id,</if>
+                <if test="location != null">location,</if>
+                <if test="uploadTime != null">upload_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="stationId != null">#{stationId,jdbcType=INTEGER},</if>
+                <if test="operatorId != null">#{operatorId,jdbcType=VARCHAR},</if>
+                <if test="operatorName != null">#{operatorName,jdbcType=VARCHAR},</if>
+                <if test="templateId != null">#{templateId,jdbcType=INTEGER},</if>
+                <if test="location != null">#{location,jdbcType=VARCHAR},</if>
+                <if test="uploadTime != null">#{uploadTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.porco.javassist.domain.UploadRecord">
+        update upload_record
+        <set>
+                <if test="stationId != null">
+                    station_id = #{stationId,jdbcType=INTEGER},
+                </if>
+                <if test="operatorId != null">
+                    operator_id = #{operatorId,jdbcType=VARCHAR},
+                </if>
+                <if test="operatorName != null">
+                    operator_name = #{operatorName,jdbcType=VARCHAR},
+                </if>
+                <if test="templateId != null">
+                    template_id = #{templateId,jdbcType=INTEGER},
+                </if>
+                <if test="location != null">
+                    location = #{location,jdbcType=VARCHAR},
+                </if>
+                <if test="uploadTime != null">
+                    upload_time = #{uploadTime,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.porco.javassist.domain.UploadRecord">
+        update upload_record
+        set 
+            station_id =  #{stationId,jdbcType=INTEGER},
+            operator_id =  #{operatorId,jdbcType=VARCHAR},
+            operator_name =  #{operatorName,jdbcType=VARCHAR},
+            template_id =  #{templateId,jdbcType=INTEGER},
+            location =  #{location,jdbcType=VARCHAR},
+            upload_time =  #{uploadTime,jdbcType=TIMESTAMP}
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+</mapper>

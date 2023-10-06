@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.porco.javassist.mapper.TemplateMapper">
+
+    <resultMap id="BaseResultMap" type="com.porco.javassist.domain.Template">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="templateName" column="template_name" jdbcType="VARCHAR"/>
+            <result property="templateDescription" column="template_description" jdbcType="VARCHAR"/>
+            <result property="location" column="location" jdbcType="VARCHAR"/>
+            <result property="stationId" column="station_id" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,template_name,template_description,
+        location,station_id
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from template
+        where  id = #{id,jdbcType=BIGINT} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from template
+        where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.Template" useGeneratedKeys="true">
+        insert into template
+        ( id,template_name,template_description
+        ,location,station_id)
+        values (#{id,jdbcType=BIGINT},#{templateName,jdbcType=VARCHAR},#{templateDescription,jdbcType=VARCHAR}
+        ,#{location,jdbcType=VARCHAR},#{stationId,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.Template" useGeneratedKeys="true">
+        insert into template
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="templateName != null">template_name,</if>
+                <if test="templateDescription != null">template_description,</if>
+                <if test="location != null">location,</if>
+                <if test="stationId != null">station_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="templateName != null">#{templateName,jdbcType=VARCHAR},</if>
+                <if test="templateDescription != null">#{templateDescription,jdbcType=VARCHAR},</if>
+                <if test="location != null">#{location,jdbcType=VARCHAR},</if>
+                <if test="stationId != null">#{stationId,jdbcType=INTEGER},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.porco.javassist.domain.Template">
+        update template
+        <set>
+                <if test="templateName != null">
+                    template_name = #{templateName,jdbcType=VARCHAR},
+                </if>
+                <if test="templateDescription != null">
+                    template_description = #{templateDescription,jdbcType=VARCHAR},
+                </if>
+                <if test="location != null">
+                    location = #{location,jdbcType=VARCHAR},
+                </if>
+                <if test="stationId != null">
+                    station_id = #{stationId,jdbcType=INTEGER},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.porco.javassist.domain.Template">
+        update template
+        set 
+            template_name =  #{templateName,jdbcType=VARCHAR},
+            template_description =  #{templateDescription,jdbcType=VARCHAR},
+            location =  #{location,jdbcType=VARCHAR},
+            station_id =  #{stationId,jdbcType=INTEGER}
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from template
+    </select>
+</mapper>

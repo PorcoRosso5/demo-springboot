@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.porco.javassist.mapper.CustomerFieldMapper">
+
+    <resultMap id="BaseResultMap" type="com.porco.javassist.domain.CustomerField">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="zhimaid" column="zhimaid" jdbcType="VARCHAR"/>
+            <result property="templateId" column="template_id" jdbcType="VARCHAR"/>
+            <result property="fieldId" column="field_id" jdbcType="VARCHAR"/>
+            <result property="filedName" column="filed_name" jdbcType="VARCHAR"/>
+            <result property="addTime" column="add_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,zhimaid,template_id,
+        field_id,filed_name,add_time,
+        update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from customer_field
+        where  id = #{id,jdbcType=BIGINT} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from customer_field
+        where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.CustomerField" useGeneratedKeys="true">
+        insert into customer_field
+        ( id,zhimaid,template_id
+        ,field_id,filed_name,add_time
+        ,update_time)
+        values (#{id,jdbcType=BIGINT},#{zhimaid,jdbcType=VARCHAR},#{templateId,jdbcType=VARCHAR}
+        ,#{fieldId,jdbcType=VARCHAR},#{filedName,jdbcType=VARCHAR},#{addTime,jdbcType=TIMESTAMP}
+        ,#{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.CustomerField" useGeneratedKeys="true">
+        insert into customer_field
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="zhimaid != null">zhimaid,</if>
+                <if test="templateId != null">template_id,</if>
+                <if test="fieldId != null">field_id,</if>
+                <if test="filedName != null">filed_name,</if>
+                <if test="addTime != null">add_time,</if>
+                <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="zhimaid != null">#{zhimaid,jdbcType=VARCHAR},</if>
+                <if test="templateId != null">#{templateId,jdbcType=VARCHAR},</if>
+                <if test="fieldId != null">#{fieldId,jdbcType=VARCHAR},</if>
+                <if test="filedName != null">#{filedName,jdbcType=VARCHAR},</if>
+                <if test="addTime != null">#{addTime,jdbcType=TIMESTAMP},</if>
+                <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.porco.javassist.domain.CustomerField">
+        update customer_field
+        <set>
+                <if test="zhimaid != null">
+                    zhimaid = #{zhimaid,jdbcType=VARCHAR},
+                </if>
+                <if test="templateId != null">
+                    template_id = #{templateId,jdbcType=VARCHAR},
+                </if>
+                <if test="fieldId != null">
+                    field_id = #{fieldId,jdbcType=VARCHAR},
+                </if>
+                <if test="filedName != null">
+                    filed_name = #{filedName,jdbcType=VARCHAR},
+                </if>
+                <if test="addTime != null">
+                    add_time = #{addTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.porco.javassist.domain.CustomerField">
+        update customer_field
+        set 
+            zhimaid =  #{zhimaid,jdbcType=VARCHAR},
+            template_id =  #{templateId,jdbcType=VARCHAR},
+            field_id =  #{fieldId,jdbcType=VARCHAR},
+            filed_name =  #{filedName,jdbcType=VARCHAR},
+            add_time =  #{addTime,jdbcType=TIMESTAMP},
+            update_time =  #{updateTime,jdbcType=TIMESTAMP}
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+</mapper>
