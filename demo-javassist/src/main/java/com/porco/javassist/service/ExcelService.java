@@ -1,29 +1,33 @@
 package com.porco.javassist.service;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.util.ListUtils;
-import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson2.JSON;
+import com.porco.javassist.domain.Record;
 import com.porco.javassist.domain.Template;
+import com.porco.javassist.mapper.RecordMapper;
 import com.porco.javassist.mapper.TemplateMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ExcelService {
-    private final TemplateMapper templateMapper;
     public static final ThreadLocal<Class<?>> CLASS_THREAD_LOCAL = new ThreadLocal<>();
+    private final TemplateMapper templateMapper;
+    private final RecordMapper recordMapper;
 
-    public ExcelService(TemplateMapper templateMapper) {
+    public ExcelService(TemplateMapper templateMapper, RecordMapper recordMapper) {
         this.templateMapper = templateMapper;
+        this.recordMapper = recordMapper;
     }
 
     /**
@@ -35,7 +39,7 @@ public class ExcelService {
      * <p>
      * 3. 直接读即可
      */
-    public void read(Long templateId, Class clz) {
+    public void read(Integer stationId, Long templateId, Class<?> clz) {
         CLASS_THREAD_LOCAL.set(clz);
         Template template = templateMapper.selectByPrimaryKey(templateId);
 
@@ -73,6 +77,15 @@ public class ExcelService {
              */
             private void saveData() {
                 log.info("{}条数据，开始存储数据库！", cachedDataList.size());
+                List<Record> list = cachedDataList.stream()
+                        .map(e -> Record.builder()
+                                .templateId(templateId)
+                                .content(e)
+                                .stationId(stationId)
+                                .addTime(LocalDateTime.now())
+                                .build())
+                        .collect(Collectors.toList());
+                recordMapper.insertBatch(list);
                 log.info("存储数据库成功！");
             }
         }).sheet().doRead();
@@ -86,7 +99,7 @@ public class ExcelService {
      * <p>
      * 2. 直接写即可
      */
-    public void simpleWrite(Long templateId, Class clz) {
+    public void simpleWrite(Long templateId, Class<?> clz, String start, String end) {
         CLASS_THREAD_LOCAL.set(clz);
         // 注意 simpleWrite在数据量不大的情况下可以使用（5000以内，具体也要看实际情况），数据量大参照 重复多次写入
         // since: 3.0.0-beta1
@@ -94,9 +107,16 @@ public class ExcelService {
 
         String fileName = template.getLocation() + File.separator + "download-" + template.getTemplateName() + ".xlsx";
 
+        List<Record> records = recordMapper.selectAllByTemplateIdBetweenContentDate(templateId, start, end);
+        List<Object> results;
+        if (!records.isEmpty()) {
+            results = records.stream().map(Record::getContent).collect(Collectors.toList());
+        } else {
+            results = Collections.emptyList();
+        }
 
         // 写法2
-        EasyExcel.write(fileName, clz).sheet("模板").doWrite(new ArrayList<>());
+        EasyExcel.write(fileName, clz).sheet("模板").doWrite(results);
 
         // 写法3
         // fileName = TestFileUtil.getPath() + "simpleWrite" + System.currentTimeMillis() + ".xlsx";

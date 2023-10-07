@@ -1,6 +1,9 @@
 package com.porco.javassist.domain;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -11,6 +14,9 @@ import java.time.LocalDateTime;
  * @TableName record
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Record implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
@@ -20,7 +26,7 @@ public class Record implements Serializable {
     /**
      * 模板id
      */
-    private Integer templateId;
+    private Long templateId;
     /**
      * 记录的json数据
      */

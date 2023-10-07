@@ -30,10 +30,23 @@
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.Record" useGeneratedKeys="true">
         insert into record
-        ( id,template_id,content
-        ,station_id,add_time)
-        values (#{id,jdbcType=BIGINT},#{templateId,jdbcType=INTEGER},#{content,jdbcType=OTHER,typeHandler=com.porco.javassist.config.MySqlJsonHandler}
-        ,#{stationId,jdbcType=INTEGER},#{addTime,jdbcType=TIMESTAMP})
+            (id, template_id, content, station_id, add_time)
+        values ( #{id,jdbcType=BIGINT}, #{templateId,jdbcType=INTEGER}
+               , #{content,jdbcType=OTHER,typeHandler=com.porco.javassist.config.MySqlJsonHandler}
+               , #{stationId,jdbcType=INTEGER}, #{addTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertBatch" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.Record" useGeneratedKeys="true">
+        insert into record
+        ( template_id,content,station_id,add_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                #{item.templateId,jdbcType=INTEGER},
+                #{item.content,jdbcType=OTHER,typeHandler=com.porco.javassist.config.MySqlJsonHandler},
+                #{item.stationId,jdbcType=INTEGER},
+                #{item.addTime,jdbcType=TIMESTAMP}
+            </trim>
+        </foreach>
     </insert>
     <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.porco.javassist.domain.Record" useGeneratedKeys="true">
         insert into record
@@ -79,4 +92,33 @@
             add_time =  #{addTime,jdbcType=TIMESTAMP}
         where   id = #{id,jdbcType=BIGINT} 
     </update>
+    <select id="selectAllByTemplateIdAndContentDate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from record
+        where
+        template_id = #{templateId,jdbcType=NUMERIC}
+        AND content->"$.date" = #{date}
+    </select>
+    <select id="selectAllByTemplateIdBetweenContentDate" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from record
+        where
+        template_id = #{templateId,jdbcType=NUMERIC}
+        <if test="start != null">
+            AND content->"$.date" &gt;= #{start}
+        </if>
+        <if test="end != null">
+            AND content->"$.date" &lt;= #{end}
+        </if>
+    </select>
+    <select id="selectAllByTemplateIdAndContentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from record
+        where
+        template_id = #{templateId,jdbcType=NUMERIC}
+        AND content->"$.id" = #{id}
+    </select>
 </mapper>
