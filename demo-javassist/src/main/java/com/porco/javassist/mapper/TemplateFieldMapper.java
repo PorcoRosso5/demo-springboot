@@ -1,6 +1,7 @@
 package com.porco.javassist.mapper;
 
 import com.porco.javassist.domain.TemplateField;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
  * @createDate 2023-10-04 04:14:59
  * @Entity com.porco.javassist.domain.TemplateField
  */
+@Mapper
 public interface TemplateFieldMapper {
 
     int deleteByPrimaryKey(Long id);

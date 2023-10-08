@@ -1,6 +1,7 @@
 package com.porco.javassist.mapper;
 
 import com.porco.javassist.domain.UploadRecord;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author Admin
@@ -8,6 +9,7 @@ import com.porco.javassist.domain.UploadRecord;
 * @createDate 2023-10-04 04:14:59
 * @Entity com.porco.javassist.domain.UploadRecord
 */
+@Mapper
 public interface UploadRecordMapper {
 
     int deleteByPrimaryKey(Long id);

@@ -35,7 +35,7 @@ public class ClassCreator implements ApplicationRunner {
         this.fieldMapper = fieldMapper;
     }
 
-    @PostConstruct
+//    @PostConstruct
     private static void createPerson() throws NotFoundException, CannotCompileException, IOException {
 
         // 1. prepare
@@ -149,7 +149,7 @@ public class ClassCreator implements ApplicationRunner {
             constructor.setBody("{}");
             person.addConstructor(constructor);
             // 6. write class
-            person.writeFile("./demo-javassist/target/classes");
+            person.writeFile("./target/classes");
         }
         System.out.println("success..." + templates);
     }

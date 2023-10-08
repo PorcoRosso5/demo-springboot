@@ -2,6 +2,7 @@ package com.porco.javassist.mapper;
 import java.util.List;
 
 import com.porco.javassist.domain.Template;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author Admin
@@ -9,6 +10,7 @@ import com.porco.javassist.domain.Template;
 * @createDate 2023-10-04 04:14:59
 * @Entity com.porco.javassist.domain.Template
 */
+@Mapper
 public interface TemplateMapper {
 
     int deleteByPrimaryKey(Long id);

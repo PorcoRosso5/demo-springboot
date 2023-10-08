@@ -72,15 +72,15 @@ class RecordMapperTest {
     @Test
     void selectAllByTemplateIdAndContentDate() throws Exception {
 //        Class<?> clz = Class.forName("com.porco.javassist.domain.Template$1");
-        Class<?> clz = Class.forName("com.porco.javassist.domain.Person");
-        ExcelService.CLASS_THREAD_LOCAL.set(clz);
-        Object o = clz.newInstance();
-        Record record = new Record();
-        record.setTemplateId(1L);
-        record.setContent(o);
-        record.setStationId(1);
-        record.setAddTime(LocalDateTime.now());
-        mapper.insert(record);
+//        Class<?> clz = Class.forName("com.porco.javassist.domain.Person");
+//        ExcelService.CLASS_THREAD_LOCAL.set(clz);
+//        Object o = clz.newInstance();
+//        Record record = new Record();
+//        record.setTemplateId(1L);
+//        record.setContent(o);
+//        record.setStationId(1);
+//        record.setAddTime(LocalDateTime.now());
+//        mapper.insert(record);
 
 //        List<Record> records = mapper.selectAllByTemplateIdAndContentId(1, 1);
 //        System.out.println(records);

@@ -33,7 +33,7 @@ import java.util.Date;
 import static com.porco.javassist.service.ExcelService.CLASS_THREAD_LOCAL;
 
 /**
- * https://www.jianshu.com/p/7a4653704acb
+ * <a href="https://www.jianshu.com/p/7a4653704acb">...</a>
  */
 @MappedTypes(Object.class)
 @MappedJdbcTypes(JdbcType.VARCHAR)

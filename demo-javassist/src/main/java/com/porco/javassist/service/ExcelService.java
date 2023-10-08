@@ -5,15 +5,19 @@ import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.util.ListUtils;
 import com.alibaba.fastjson2.JSON;
+import com.porco.javassist.domain.CustomerField;
 import com.porco.javassist.domain.Record;
 import com.porco.javassist.domain.Template;
+import com.porco.javassist.mapper.CustomerFieldMapper;
 import com.porco.javassist.mapper.RecordMapper;
 import com.porco.javassist.mapper.TemplateMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,10 +28,43 @@ public class ExcelService {
     public static final ThreadLocal<Class<?>> CLASS_THREAD_LOCAL = new ThreadLocal<>();
     private final TemplateMapper templateMapper;
     private final RecordMapper recordMapper;
+    private final CustomerFieldMapper customerFieldMapper;
 
-    public ExcelService(TemplateMapper templateMapper, RecordMapper recordMapper) {
+    public ExcelService(TemplateMapper templateMapper, RecordMapper recordMapper, CustomerFieldMapper customerFieldMapper) {
         this.templateMapper = templateMapper;
         this.recordMapper = recordMapper;
+        this.customerFieldMapper = customerFieldMapper;
+    }
+
+    private static List<List<String>> getHeadList(List<CustomerField> fields) {
+        List<List<String>> list = new ArrayList<>();
+        for (CustomerField field : fields) {
+            List<String> head = new ArrayList<>();
+            head.add(field.getBusinessName());
+            list.add(head);
+        }
+        return list;
+    }
+
+    private static List<Object> getDataList(List<CustomerField> fields, List<Record> records) throws NoSuchFieldException, IllegalAccessException {
+        List<Object> list = new ArrayList<>();
+        for (Record record : records) {
+            if (fields.isEmpty()) {
+                list.add(record.getContent());
+            } else {
+                Object content = record.getContent();
+                List<Object> data = new ArrayList<>();
+                Class<?> aClass = content.getClass();
+                for (CustomerField field : fields) {
+                    Field declaredField = aClass.getDeclaredField(field.getFiledName());
+                    declaredField.setAccessible(true);
+                    Object o = declaredField.get(content);
+                    data.add(o);
+                }
+                list.add(data);
+            }
+        }
+        return list;
     }
 
     /**
@@ -99,32 +136,34 @@ public class ExcelService {
      * <p>
      * 2. 直接写即可
      */
-    public void simpleWrite(Long templateId, Class<?> clz, String start, String end) {
+    public void simpleWrite(Long templateId, Class<?> clz, String start, String end) throws NoSuchFieldException, IllegalAccessException {
         CLASS_THREAD_LOCAL.set(clz);
         // 注意 simpleWrite在数据量不大的情况下可以使用（5000以内，具体也要看实际情况），数据量大参照 重复多次写入
         // since: 3.0.0-beta1
         Template template = templateMapper.selectByPrimaryKey(templateId);
 
         String fileName = template.getLocation() + File.separator + "download-" + template.getTemplateName() + ".xlsx";
-
+        String zhimaid = "1";
+        List<CustomerField> fields = customerFieldMapper.selectAllByZhimaidAndTemplateId(zhimaid, templateId);
         List<Record> records = recordMapper.selectAllByTemplateIdBetweenContentDate(templateId, start, end);
         List<Object> results;
-        if (!records.isEmpty()) {
-            results = records.stream().map(Record::getContent).collect(Collectors.toList());
-        } else {
+        if (records.isEmpty()) {
             results = Collections.emptyList();
+        } else {
+            results = getDataList(fields, records);
         }
 
-        // 写法2
-        EasyExcel.write(fileName, clz).sheet("模板").doWrite(results);
+        if (fields.isEmpty()) {
+            EasyExcel.write(fileName, clz)
+                    .sheet("模板")
+                    .doWrite(results);
+        } else {
+            EasyExcel.write(fileName)
+                    .head(getHeadList(fields))
+                    .sheet("模板")
+                    .doWrite(results);
+        }
 
-        // 写法3
-        // fileName = TestFileUtil.getPath() + "simpleWrite" + System.currentTimeMillis() + ".xlsx";
-        // 这里 需要指定写用哪个class去写
-        // try (ExcelWriter excelWriter = EasyExcel.write(fileName, clz).build()) {
-        //     WriteSheet writeSheet = EasyExcel.writerSheet("模板").build();
-        //     excelWriter.write(ArrayList::new, writeSheet);
-        // }
         CLASS_THREAD_LOCAL.remove();
     }
 }

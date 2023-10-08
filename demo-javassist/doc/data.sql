@@ -5,8 +5,8 @@ create table if not exists customer_field
     id          bigint auto_increment comment '主键id'
         primary key,
     zhimaid     varchar(32)                        not null comment '用户id',
-    template_id varchar(32)                        not null comment '模版id',
-    field_id    varchar(32)                        not null comment '字段id',
+    template_id bigint                             not null comment '模版id',
+    field_id    bigint                             not null comment '字段id',
     filed_name  varchar(32)                        not null comment '字段名称',
     add_time    datetime default CURRENT_TIMESTAMP null comment '添加时间',
     update_time datetime default CURRENT_TIMESTAMP null comment '修改时间'

@@ -45,7 +45,7 @@ public class DynamicController {
 
         Object o = clz.newInstance();
         LcWorker.work(o);
-        excelService.simpleWrite(id, clz, "2022-08-19 00:00:00", "2022-08-20 00:00:00");
+        excelService.simpleWrite(id, clz, "2022-08-20 17:00:00", "2022-08-20 20:00:00");
         return Result.of(o);
     }
 

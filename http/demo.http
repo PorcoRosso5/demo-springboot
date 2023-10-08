@@ -4,3 +4,23 @@ GET http://localhost:8080/hello
 ###
 GET http://localhost:8080/hello1
 
+
+###
+GET http://localhost:8080/demo/test/1
+
+### upload excel-1
+GET http://localhost:8080/demo/upload/1
+
+### download excel-1
+GET http://localhost:8080/demo/download/1
+
+### upload excel-2
+GET http://localhost:8080/demo/upload/2
+
+### download excel-2
+GET http://localhost:8080/demo/download/2
+
+
+### query data by date
+GET http://localhost:8080/demo/list/1
+
