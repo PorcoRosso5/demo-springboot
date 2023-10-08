@@ -19,10 +19,12 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * <a href="https://blog.csdn.net/m0_61933976/article/details/128519763">...</a>
+ */
 @Slf4j
 @Service
 public class ClassCreator implements ApplicationRunner {
@@ -35,7 +37,7 @@ public class ClassCreator implements ApplicationRunner {
         this.fieldMapper = fieldMapper;
     }
 
-//    @PostConstruct
+    //    @PostConstruct
     private static void createPerson() throws NotFoundException, CannotCompileException, IOException {
 
         // 1. prepare
@@ -108,6 +110,9 @@ public class ClassCreator implements ApplicationRunner {
             return;
         }
         ClassPool pool = ClassPool.getDefault();
+        // pool.appendClassPath(new LoaderClassPath(Thread.currentThread().getContextClassLoader()));
+        // String directoryName = "D:\\projects\\demo-springboot\\demo-javassist/target/classes";
+        // pool.insertClassPath(directoryName);
 
         for (Template template : templates) {
 
@@ -149,7 +154,8 @@ public class ClassCreator implements ApplicationRunner {
             constructor.setBody("{}");
             person.addConstructor(constructor);
             // 6. write class
-            person.writeFile("./target/classes");
+            // person.writeFile(directoryName);
+            person.toClass();
         }
         System.out.println("success..." + templates);
     }
