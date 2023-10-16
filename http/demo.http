@@ -1,3 +1,19 @@
+### Authorization by token, part 1. Retrieve and save token.
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "userId": "user-1"
+}
+
+> {% client.global.set("auth_token", response.body.data.token); %}
+
+### Authorization by token, part 2. Use token to authorize.
+GET http://localhost:8080/user
+Authorization: Bearer {{auth_token}}
+
+
+
 ###
 GET http://localhost:8080/hello
 
