@@ -4,7 +4,6 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.read.listener.ReadListener;
 import com.alibaba.excel.util.ListUtils;
-import com.alibaba.fastjson2.JSON;
 import com.porco.javassist.domain.CustomerField;
 import com.porco.javassist.domain.Record;
 import com.porco.javassist.domain.Template;
@@ -20,7 +19,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.porco.javassist.dynamic.ClassCreator.FUNCTION;
 
 @Slf4j
 @Service
@@ -46,7 +48,7 @@ public class ExcelService {
         return list;
     }
 
-    private static List<Object> getDataList(List<CustomerField> fields, List<Record> records) throws NoSuchFieldException, IllegalAccessException {
+    private static List<Object> getDataList(Long templateId, List<CustomerField> fields, List<Record> records) throws NoSuchFieldException, IllegalAccessException {
         List<Object> list = new ArrayList<>();
         for (Record record : records) {
             if (fields.isEmpty()) {
@@ -54,13 +56,18 @@ public class ExcelService {
             } else {
                 Object content = record.getContent();
                 List<Object> data = new ArrayList<>();
-                Class<?> aClass = content.getClass();
+                // offer by Template method whose return_type is List<Object>
                 for (CustomerField field : fields) {
-                    Field declaredField = aClass.getDeclaredField(field.getFiledName());
-                    declaredField.setAccessible(true);
-                    Object o = declaredField.get(content);
-                    data.add(o);
+                    Function<Object, Object> function = FUNCTION.getOrDefault(templateId + "-" + field.getFiledName(), i -> null);
+                    data.add(function.apply(content));
                 }
+                // Class<?> aClass = content.getClass();
+                // for (CustomerField field : fields) {
+                //     Field declaredField = aClass.getDeclaredField(field.getFiledName());
+                //     declaredField.setAccessible(true);
+                //     Object o = declaredField.get(content);
+                //     data.add(o);
+                // }
                 list.add(data);
             }
         }
@@ -82,12 +89,13 @@ public class ExcelService {
 
         // 匿名内部类 不用额外写一个DemoDataListener
         String fileName = template.getLocation() + File.separator + template.getTemplateName() + ".xlsx";
+        // String fileName = template.getLocation() + File.separator + template.getTemplateName();
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
         EasyExcel.read(fileName, clz, new ReadListener<Object>() {
             /**
              * 单次缓存的数据量
              */
-            public static final int BATCH_COUNT = 10;
+            public static final int BATCH_COUNT = 1000;
             /**
              *临时存储
              */
@@ -95,7 +103,7 @@ public class ExcelService {
 
             @Override
             public void invoke(Object data, AnalysisContext context) {
-                log.info("读取到一条数据{}", JSON.toJSONString(data));
+                // log.info("读取到一条数据{}", JSON.toJSONString(data));
                 cachedDataList.add(data);
                 if (cachedDataList.size() >= BATCH_COUNT) {
                     saveData();
@@ -113,6 +121,7 @@ public class ExcelService {
              * 加上存储数据库
              */
             private void saveData() {
+                if (cachedDataList.isEmpty()) return;
                 log.info("{}条数据，开始存储数据库！", cachedDataList.size());
                 List<Record> list = cachedDataList.stream()
                         .map(e -> Record.builder()
@@ -150,7 +159,7 @@ public class ExcelService {
         if (records.isEmpty()) {
             results = Collections.emptyList();
         } else {
-            results = getDataList(fields, records);
+            results = getDataList(templateId, fields, records);
         }
 
         if (fields.isEmpty()) {

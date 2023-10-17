@@ -15,12 +15,19 @@ import javassist.bytecode.annotation.ArrayMemberValue;
 import javassist.bytecode.annotation.MemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 
+import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * <a href="https://blog.csdn.net/m0_61933976/article/details/128519763">...</a>
@@ -28,6 +35,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class ClassCreator implements ApplicationRunner {
+    public static final Map<String, Function<Object, Object>> FUNCTION = new HashMap<>();
     // 1. prepare
     private final TemplateMapper templateMapper;
     private final TemplateFieldMapper fieldMapper;
@@ -102,7 +110,6 @@ public class ClassCreator implements ApplicationRunner {
         return new String(chars);
     }
 
-
     @Override
     public void run(ApplicationArguments args) throws Exception {
         List<Template> templates = templateMapper.selectAll();
@@ -153,9 +160,44 @@ public class ClassCreator implements ApplicationRunner {
             CtConstructor constructor = new CtConstructor(new CtClass[0], person);
             constructor.setBody("{}");
             person.addConstructor(constructor);
+
+            // 6.
+            // 创建calc方法, 带两个参数，参数的类型都为int类型
+            // CtMethod ctMethod = new CtMethod(pool.get("java.util.List"), "generateData", new CtClass[]{pool.get("java.util.List")}, person);
+            // 设置方法的访问修饰
+            // ctMethod.setModifiers(Modifier.PUBLIC);
+            // 设置方法体代码
+            // ctMethod.setBody("{java.util.List result = new java.util.ArrayList();" +
+            //         "            java.util.Iterator iterator = $1.iterator();" +
+            //         "            while (iterator.hasNext()) {" +
+            //         "                String next = (String) iterator.next();" +
+            //         "                result.add(next);" +
+            //         "            }" +
+            //         "            return result;}");
+
+
+            // // 添加新建的方法到原有的类中
+            // person.addMethod(ctMethod);
             // 6. write class
-            // person.writeFile(directoryName);
-            person.toClass();
+            if (log.isDebugEnabled()) {
+            person.writeFile("./target");
+            }
+            Class<?> aClass = person.toClass();
+            for (TemplateField templateField : templateFields) {
+                PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(aClass, templateField.getFieldName());
+                Method readMethod = propertyDescriptor != null ? propertyDescriptor.getReadMethod() : null;
+                FUNCTION.put(template.getId() + "-" + templateField.getFieldName(), i -> {
+                    try {
+                        if (readMethod != null) {
+                            return readMethod.invoke(i, null);
+                        } else {
+                            return null;
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
         }
         System.out.println("success..." + templates);
     }
