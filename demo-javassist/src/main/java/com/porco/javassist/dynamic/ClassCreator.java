@@ -137,20 +137,18 @@ public class ClassCreator implements ApplicationRunner {
                 ConstPool constPool = person.getClassFile().getConstPool();
                 FieldInfo nameFieldFieldInfo = field.getFieldInfo();
 
-                // Annotation lcAnnotation = new Annotation(Lc.class.getName(), constPool);
-                // lcAnnotation.addMemberValue("value", new StringMemberValue(templateField.getBusinessName(), constPool));
-                // AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-                // annotationsAttribute.setAnnotation(lcAnnotation);
-                // nameFieldFieldInfo.addAttribute(annotationsAttribute);
+                Annotation lcAnnotation = new Annotation(Lc.class.getName(), constPool);
+                lcAnnotation.addMemberValue("value", new StringMemberValue(templateField.getBusinessName(), constPool));
+                AnnotationsAttribute annotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+                annotationsAttribute.addAnnotation(lcAnnotation);
 
 
                 Annotation excelAnnotation = new Annotation(ExcelProperty.class.getName(), constPool);
                 ArrayMemberValue memberValue = new ArrayMemberValue(new StringMemberValue(templateField.getBusinessName(), constPool), constPool);
                 memberValue.setValue(new MemberValue[]{new StringMemberValue(templateField.getBusinessName(), constPool)});
                 excelAnnotation.addMemberValue("value", memberValue);
-                AnnotationsAttribute excelAnnotationsAttribute = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
-                excelAnnotationsAttribute.setAnnotation(excelAnnotation);
-                nameFieldFieldInfo.addAttribute(excelAnnotationsAttribute);
+                annotationsAttribute.addAnnotation(excelAnnotation);
+                nameFieldFieldInfo.addAttribute(annotationsAttribute);
                 // 4. getter/setter
                 person.addMethod(CtNewMethod.getter("get" + bigCamel(fieldName), field));
                 person.addMethod(CtNewMethod.setter("set" + bigCamel(fieldName), field));
@@ -179,9 +177,9 @@ public class ClassCreator implements ApplicationRunner {
             // // 添加新建的方法到原有的类中
             // person.addMethod(ctMethod);
             // 6. write class
-            if (log.isDebugEnabled()) {
-            person.writeFile("./target");
-            }
+            // if (log.isDebugEnabled()) {
+                person.writeFile("./target");
+            // }
             Class<?> aClass = person.toClass();
             for (TemplateField templateField : templateFields) {
                 PropertyDescriptor propertyDescriptor = BeanUtils.getPropertyDescriptor(aClass, templateField.getFieldName());

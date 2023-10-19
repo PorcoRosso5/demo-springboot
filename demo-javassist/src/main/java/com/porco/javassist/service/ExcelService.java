@@ -57,17 +57,17 @@ public class ExcelService {
                 Object content = record.getContent();
                 List<Object> data = new ArrayList<>();
                 // offer by Template method whose return_type is List<Object>
-                for (CustomerField field : fields) {
-                    Function<Object, Object> function = FUNCTION.getOrDefault(templateId + "-" + field.getFiledName(), i -> null);
-                    data.add(function.apply(content));
-                }
-                // Class<?> aClass = content.getClass();
                 // for (CustomerField field : fields) {
-                //     Field declaredField = aClass.getDeclaredField(field.getFiledName());
-                //     declaredField.setAccessible(true);
-                //     Object o = declaredField.get(content);
-                //     data.add(o);
+                //     Function<Object, Object> function = FUNCTION.getOrDefault(templateId + "-" + field.getFiledName(), i -> null);
+                //     data.add(function.apply(content));
                 // }
+                Class<?> aClass = content.getClass();
+                for (CustomerField field : fields) {
+                    Field declaredField = aClass.getDeclaredField(field.getFiledName());
+                    declaredField.setAccessible(true);
+                    Object o = declaredField.get(content);
+                    data.add(o);
+                }
                 list.add(data);
             }
         }
@@ -88,8 +88,9 @@ public class ExcelService {
         Template template = templateMapper.selectByPrimaryKey(templateId);
 
         // 匿名内部类 不用额外写一个DemoDataListener
-        String fileName = template.getLocation() + File.separator + template.getTemplateName() + ".xlsx";
-        // String fileName = template.getLocation() + File.separator + template.getTemplateName();
+        // String fileName = template.getLocation() + File.separator + template.getTemplateName() + ".xlsx";
+        String fileName = template.getLocation() + File.separator + template.getTemplateName();
+
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
         EasyExcel.read(fileName, clz, new ReadListener<Object>() {
             /**
